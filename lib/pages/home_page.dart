@@ -1,6 +1,7 @@
-import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:guarda_roupas_de_bolso/constants.dart';
+import 'package:guarda_roupas_de_bolso/models/models.dart';
+import 'package:guarda_roupas_de_bolso/widgets/widgets.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -80,25 +81,8 @@ class _MyHomePageState extends State<MyHomePage> {
       body: SafeArea(
         child: Column(
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    alignment: Alignment.center,
-                    color: AppColors.blue2,
-                    child: Text(
-                      DateFormat('dd/MM/yyyy').format(
-                        DateTime.now(),
-                      ),
-                      style: TextStyle(
-                        fontSize: 32.0,
-                        color: AppColors.brightOrange,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+            DateRow(
+              date: DateTime.now(),
             ),
             Expanded(
               child: ListView.builder(
@@ -131,7 +115,6 @@ class _MyHomePageState extends State<MyHomePage> {
             });
 
             Navigator.of(context).pop();
-            print(locationsList);
           },
         ),
         tooltip: 'Increment',
@@ -142,7 +125,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
   addLocation(
     BuildContext context,
-    Function(String title, TimeOfDay? time) addLocationToList,
+    Function(
+      String title,
+      TimeOfDay? time,
+    ) addLocationToList,
   ) async {
     TimeOfDay? selectedTime;
 
@@ -268,7 +254,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         titleController.text,
                         selectedTime,
                       ),
-                      child: Text('Salvar'),
+                      child: const Text('Salvar'),
                     ),
                   ],
                 ),
@@ -294,136 +280,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-class VSpace extends StatelessWidget {
-  final double height;
-
-  const VSpace(
-    this.height, {
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: height,
-    );
-  }
-}
-
-class Location extends Equatable {
-  final String title;
-  final TimeOfDay? time;
-
-  const Location({
-    required this.title,
-    this.time,
-  });
-
-  @override
-  List<Object?> get props => [
-        title,
-        time,
-      ];
-}
-
-class LocationCard extends StatelessWidget {
-  final String title;
-  final TimeOfDay? time;
-
-  const LocationCard({
-    required this.title,
-    this.time,
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 200,
-      height: 150,
-      decoration: BoxDecoration(
-        color: Colors.yellow,
-        borderRadius: BorderRadius.circular(
-          20.0,
-        ),
-      ),
-      child: Stack(
-        children: [
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 110,
-            child: Container(
-              decoration: const BoxDecoration(
-                color: Color(0xFF002E4E),
-                borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(20.0),
-                ),
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                title,
-                style: const TextStyle(
-                  color: Color(0xFFFFFFFF),
-                  fontSize: 24.0,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-          ),
-          if (time != null) ...[
-            Positioned(
-              left: 0,
-              bottom: 0,
-              top: 40,
-              child: Container(
-                alignment: Alignment.centerLeft,
-                padding: const EdgeInsets.all(16.0),
-                decoration: const BoxDecoration(
-                  color: Color(0xFF00406C),
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(20.0),
-                  ),
-                ),
-                child: Text(
-                  time!.format(context),
-                  style: const TextStyle(
-                    color: Color(0xFFFFFFFF),
-                    fontSize: 24.0,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            )
-          ]
-        ],
-      ),
-    );
-  }
-}
-
-class TaskCategory {
-  final IconData icon;
-  final bool isDone;
-  final Color iconColor;
-  TaskCategory({
-    required this.icon,
-    required this.isDone,
-    required this.iconColor,
-  });
-}
-
 Color getColorFromHex(String value) {
   final formattedValue = value.replaceAll('#', '');
   return Color(int.parse('0xff$formattedValue'));
-}
-
-class AppColors {
-  static Color blue3 = const Color(0xFF001233);
-  static Color blue2 = const Color(0xFF002E4E);
-  static Color blue1 = const Color(0xFF00406C);
-  static Color white = const Color(0xFFFFFFFF);
-  static Color orange = const Color(0xFFFF9500);
-  static Color brightOrange = const Color(0xFFFFA200);
 }
