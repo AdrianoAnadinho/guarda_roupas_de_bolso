@@ -13,28 +13,27 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final titleController = TextEditingController();
   final timeController = TextEditingController();
+  List<Location> locationsList = [
+    const Location(
+      title: 'Casa',
+      time: TimeOfDay(hour: 3, minute: 32),
+    ),
+    const Location(
+      title: 'Trabalho',
+      time: TimeOfDay(hour: 5, minute: 11),
+    ),
+    const Location(
+      title: 'Faculdade',
+      time: TimeOfDay(hour: 4, minute: 56),
+    ),
+    const Location(
+      title: 'Amiga',
+      time: TimeOfDay(hour: 10, minute: 43),
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
-    List<Location> locationsList = [
-      const Location(
-        title: 'Casa',
-        time: TimeOfDay(hour: 3, minute: 32),
-      ),
-      const Location(
-        title: 'Trabalho',
-        time: TimeOfDay(hour: 5, minute: 11),
-      ),
-      const Location(
-        title: 'Faculdade',
-        time: TimeOfDay(hour: 4, minute: 56),
-      ),
-      const Location(
-        title: 'Amiga',
-        time: TimeOfDay(hour: 10, minute: 43),
-      ),
-    ];
-
     locationsList.sort(
       (a, b) => a.time != null && b.time != null
           ? ((a.time!.hour) * 60 + a.time!.minute)
@@ -119,14 +118,34 @@ class _MyHomePageState extends State<MyHomePage> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppColors.blue1,
         foregroundColor: AppColors.brightOrange,
-        onPressed: () => addLocation(context),
+        onPressed: () => addLocation(
+          context,
+          (title, time) {
+            setState(() {
+              locationsList.add(
+                Location(
+                  title: title,
+                  time: time,
+                ),
+              );
+            });
+
+            Navigator.of(context).pop();
+            print(locationsList);
+          },
+        ),
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ),
     );
   }
 
-  addLocation(BuildContext context) {
+  addLocation(
+    BuildContext context,
+    Function(String title, TimeOfDay? time) addLocationToList,
+  ) async {
+    TimeOfDay? selectedTime;
+
     showModalBottomSheet(
       isScrollControlled: true,
       context: context,
@@ -216,7 +235,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         Expanded(
                           child: TextFormField(
                             canRequestFocus: false,
-                            onTap: () => openTimePicker(context),
+                            onTap: () async =>
+                                selectedTime = await openTimePicker(context),
                             style: TextStyle(
                               fontSize: 16.0,
                               color: AppColors.white,
@@ -243,6 +263,13 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ],
                     ),
+                    TextButton(
+                      onPressed: () => addLocationToList(
+                        titleController.text,
+                        selectedTime,
+                      ),
+                      child: Text('Salvar'),
+                    ),
                   ],
                 ),
               ],
@@ -253,7 +280,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  openTimePicker(BuildContext localContext) async {
+  Future<TimeOfDay?> openTimePicker(BuildContext localContext) async {
     final time = await showTimePicker(
       context: localContext,
       initialTime: TimeOfDay.now(),
@@ -261,7 +288,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
     if (context.mounted) {
       timeController.text = time!.format(localContext);
+      return time;
     }
+    return null;
   }
 }
 
