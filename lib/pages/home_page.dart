@@ -24,6 +24,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final titleController = TextEditingController();
   final timeController = TextEditingController();
+  final titleFocusNode = FocusNode();
   final cubit = HomePageCubit();
   List<Location> locationsList = [
     // const Location(
@@ -175,7 +176,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 builder: (context) => AlertDialog(
                                   backgroundColor: AppColors.orange,
                                   title: Text(
-                                    'Tem certeza que deseja alterar ${category.name}?',
+                                    'Tem certeza que deseja alterar ${category.displayName}?',
                                     style: const TextStyle(
                                       color: Colors.black,
                                       fontWeight: FontWeight.bold,
@@ -335,6 +336,8 @@ class _MyHomePageState extends State<MyHomePage> {
             // );
 
             Navigator.of(context).pop();
+            timeController.clear();
+            titleController.clear();
           },
         ),
         tooltip: 'Increment',
@@ -399,6 +402,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       children: [
                         Expanded(
                           child: TextFormField(
+                            focusNode: titleFocusNode,
                             style: TextStyle(
                               fontSize: 16.0,
                               color: AppColors.white,
@@ -441,8 +445,11 @@ class _MyHomePageState extends State<MyHomePage> {
                         Expanded(
                           child: TextFormField(
                             canRequestFocus: false,
-                            onTap: () async =>
-                                selectedTime = await openTimePicker(context),
+                            onTap: () async {
+                              titleFocusNode.unfocus();
+                              FocusScope.of(context).unfocus();
+                              selectedTime = await openTimePicker(context);
+                            },
                             style: TextStyle(
                               fontSize: 16.0,
                               color: AppColors.white,

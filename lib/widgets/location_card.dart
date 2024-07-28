@@ -42,10 +42,14 @@ class _LocationCardState extends State<LocationCard> {
     final onTapFunction = widget.onTap;
 
     return Container(
-      // height: 250,
       decoration: BoxDecoration(
         border: Border.all(
-          color: Colors.white,
+          color: cardCategories != null &&
+                  cardCategories.every(
+                    (element) => element.isDone,
+                  )
+              ? Colors.green
+              : Colors.white,
           width: 2,
         ),
         borderRadius: BorderRadius.circular(
@@ -143,8 +147,6 @@ class _LocationCardState extends State<LocationCard> {
               children: [
                 Expanded(
                   child: Container(
-                    height: 270,
-                    // padding: const EdgeInsets.all(16.0),
                     decoration: const BoxDecoration(
                       color: Color.fromARGB(214, 253, 197, 11),
                       borderRadius: BorderRadius.vertical(
@@ -152,6 +154,7 @@ class _LocationCardState extends State<LocationCard> {
                       ),
                     ),
                     child: GridView.builder(
+                      shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: cardCategories.length,
                       gridDelegate:
