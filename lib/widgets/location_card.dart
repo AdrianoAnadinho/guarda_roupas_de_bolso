@@ -9,7 +9,7 @@ class LocationCard extends StatefulWidget {
   final TimeOfDay? time;
   final List<TaskCategory>? categories;
   final bool isExpanded;
-  final Function(Category category) onTap;
+  final Function(Category category, String key) onTap;
   final Function(String key) onDelete;
 
   const LocationCard({
@@ -36,6 +36,7 @@ class _LocationCardState extends State<LocationCard> {
 
   @override
   Widget build(BuildContext context) {
+    final cardTitle = widget.title;
     final cardTime = widget.time;
     final cardCategories = widget.categories;
     final onTapFunction = widget.onTap;
@@ -160,8 +161,10 @@ class _LocationCardState extends State<LocationCard> {
                       itemBuilder: (context, index) => CustomIconButton(
                         icon: cardCategories[index].icon,
                         isDone: cardCategories[index].isDone,
-                        onPress: () =>
-                            onTapFunction(cardCategories[index].category),
+                        onPress: () => onTapFunction(
+                          cardCategories[index].category,
+                          cardTitle,
+                        ),
                       ),
                     ),
                   ),

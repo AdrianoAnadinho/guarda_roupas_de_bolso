@@ -168,9 +168,95 @@ class _MyHomePageState extends State<MyHomePage> {
                                   ),
                                 ),
                               );
-                              // locationsBox.delete(key);
                             },
-                            onTap: (category) => print(category.name),
+                            onTap: (category, key) {
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  backgroundColor: AppColors.orange,
+                                  title: Text(
+                                    'Tem certeza que deseja alterar ${category.name}?',
+                                    style: const TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  content: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: [
+                                      Expanded(
+                                        child: TextButton(
+                                          style: const ButtonStyle(
+                                            backgroundColor:
+                                                WidgetStatePropertyAll(
+                                              Colors.red,
+                                            ),
+                                          ),
+                                          onPressed: () =>
+                                              Navigator.of(context).pop(),
+                                          child: const Text(
+                                            'NÃO',
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          ),
+                                        ),
+                                      ),
+                                      const HSpace(16.0),
+                                      Expanded(
+                                        child: TextButton(
+                                          style: const ButtonStyle(
+                                            backgroundColor:
+                                                WidgetStatePropertyAll(
+                                              Colors.green,
+                                            ),
+                                          ),
+                                          onPressed: () {
+                                            locationsBox.put(
+                                              key,
+                                              location.copyWith(
+                                                shirtStatus:
+                                                    category == Category.shirt
+                                                        ? !location.shirtStatus
+                                                        : location.shirtStatus,
+                                                shortsStatus:
+                                                    category == Category.shorts
+                                                        ? !location.shortsStatus
+                                                        : location.shortsStatus,
+                                                shoeStatus:
+                                                    category == Category.shoe
+                                                        ? !location.shoeStatus
+                                                        : location.shoeStatus,
+                                                socksStatus:
+                                                    category == Category.socks
+                                                        ? !location.socksStatus
+                                                        : location.socksStatus,
+                                                braStatus:
+                                                    category == Category.bra
+                                                        ? !location.braStatus
+                                                        : location.braStatus,
+                                                pantiesStatus: category ==
+                                                        Category.panties
+                                                    ? !location.pantiesStatus
+                                                    : location.pantiesStatus,
+                                              ),
+                                            );
+
+                                            cubit.refreshLocations();
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: const Text(
+                                            'SIM',
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
                             isExpanded: _compareTime(
                               TimeOfDay.fromDateTime(
                                 DateTime.now(),
@@ -383,12 +469,27 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ],
                     ),
-                    TextButton(
-                      onPressed: () => addLocationToList(
-                        titleController.text,
-                        selectedTime,
+                    const VSpace(48.0),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        style: ButtonStyle(
+                          backgroundColor: WidgetStatePropertyAll(
+                            AppColors.orange,
+                          ),
+                        ),
+                        onPressed: () => addLocationToList(
+                          titleController.text,
+                          selectedTime,
+                        ),
+                        child: const Text(
+                          'Salvar',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
-                      child: const Text('Salvar'),
                     ),
                   ],
                 ),
