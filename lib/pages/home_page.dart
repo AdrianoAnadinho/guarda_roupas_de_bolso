@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:guarda_roupas_de_bolso/assets/icons/pocket_icons_icons.dart';
 import 'package:guarda_roupas_de_bolso/constants.dart';
+import 'package:guarda_roupas_de_bolso/hive/boxes/boxes.dart';
 import 'package:guarda_roupas_de_bolso/models/enums/enums.dart';
 import 'package:guarda_roupas_de_bolso/models/models.dart';
 import 'package:guarda_roupas_de_bolso/stores/cubits/home_page_cubit.dart';
@@ -25,33 +26,26 @@ class _MyHomePageState extends State<MyHomePage> {
   final timeController = TextEditingController();
   final cubit = HomePageCubit();
   List<Location> locationsList = [
-    const Location(
-      title: 'Trabalho',
-      time: TimeOfDay(hour: 5, minute: 11),
-      braStatus: false,
-      pantiesStatus: true,
-      shirtStatus: true,
-      shoeStatus: false,
-      shortsStatus: true,
-      socksStatus: false,
-    ),
+    // const Location(
+    //   title: 'Trabalho',
+    //   time: TimeOfDay(hour: 5, minute: 11),
+    //   braStatus: false,
+    //   pantiesStatus: true,
+    //   shirtStatus: true,
+    //   shoeStatus: false,
+    //   shortsStatus: true,
+    //   socksStatus: false,
+    // ),
   ];
 
   @override
-  void activate() {
-    super.activate();
+  void initState() {
     cubit.init();
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    locationsList.sort(
-      (a, b) => a.time != null && b.time != null
-          ? ((a.time!.hour) * 60 + a.time!.minute)
-              .compareTo(((b.time!.hour) * 60 + b.time!.minute))
-          : 1,
-    );
-
     return Scaffold(
       backgroundColor: AppColors.blue3,
       bottomNavigationBar: BottomNavigationBar(
@@ -98,6 +92,15 @@ class _MyHomePageState extends State<MyHomePage> {
               bloc: cubit,
               builder: (context, state) {
                 if (state is HomePageLoadedState) {
+                  locationsList = state.locations;
+
+                  locationsList.sort(
+                    (a, b) => a.time != null && b.time != null
+                        ? ((a.time!.hour) * 60 + a.time!.minute)
+                            .compareTo(((b.time!.hour) * 60 + b.time!.minute))
+                        : 1,
+                  );
+
                   return Expanded(
                     child: ListView.builder(
                       itemCount: locationsList.length,
@@ -107,7 +110,67 @@ class _MyHomePageState extends State<MyHomePage> {
                         return Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: LocationCard(
-                            onTap: (category) => print(category),
+                            onDelete: (key) {
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  backgroundColor: AppColors.orange,
+                                  title: const Text(
+                                    'Tem certeza que deseja deletar?',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  content: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: [
+                                      Expanded(
+                                        child: TextButton(
+                                          style: const ButtonStyle(
+                                            backgroundColor:
+                                                WidgetStatePropertyAll(
+                                              Colors.red,
+                                            ),
+                                          ),
+                                          onPressed: () =>
+                                              Navigator.of(context).pop(),
+                                          child: const Text(
+                                            'NÃO',
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          ),
+                                        ),
+                                      ),
+                                      const HSpace(16.0),
+                                      Expanded(
+                                        child: TextButton(
+                                          style: const ButtonStyle(
+                                            backgroundColor:
+                                                WidgetStatePropertyAll(
+                                              Colors.green,
+                                            ),
+                                          ),
+                                          onPressed: () {
+                                            locationsBox.delete(key);
+                                            cubit.refreshLocations();
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: const Text(
+                                            'SIM',
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                              // locationsBox.delete(key);
+                            },
+                            onTap: (category) => print(category.name),
                             isExpanded: _compareTime(
                               TimeOfDay.fromDateTime(
                                 DateTime.now(),
@@ -154,8 +217,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   );
                 }
-                return const Center(
-                  child: CircularProgressIndicator(),
+                return const Expanded(
+                  child: Center(
+                    child: CircularProgressIndicator(),
+                  ),
                 );
               },
             )
@@ -168,14 +233,20 @@ class _MyHomePageState extends State<MyHomePage> {
         onPressed: () => addLocation(
           context,
           (title, time) {
-            setState(() {
-              locationsList.add(
-                Location(
-                  title: title,
-                  time: time,
-                ),
-              );
-            });
+            locationsBox.put(
+              title,
+              Location(
+                title: title,
+                time: time,
+              ),
+            );
+            cubit.refreshLocations();
+            // locationsList.add(
+            //   Location(
+            //     title: title,
+            //     time: time,
+            //   ),
+            // );
 
             Navigator.of(context).pop();
           },
@@ -346,8 +417,6 @@ class _MyHomePageState extends State<MyHomePage> {
     if (cardTime == null) {
       return false;
     }
-
-    print(DateTime.now());
 
     if (cardTime.hour < now.hour ||
         (cardTime.hour == now.hour && cardTime.minute < now.minute)) {

@@ -11,4 +11,10 @@ class HomePageCubit extends Cubit<HomePageState> {
 
     emit(HomePageLoadedState(locations: locations));
   }
+
+  refreshLocations() async {
+    final locations = await useCase.getLocations();
+
+    emit(HomePageLoadedState(locations: locations));
+  }
 }

@@ -10,10 +10,12 @@ class LocationCard extends StatefulWidget {
   final List<TaskCategory>? categories;
   final bool isExpanded;
   final Function(Category category) onTap;
+  final Function(String key) onDelete;
 
   const LocationCard({
     required this.title,
     required this.onTap,
+    required this.onDelete,
     this.isExpanded = true,
     this.categories,
     this.time,
@@ -70,6 +72,15 @@ class _LocationCardState extends State<LocationCard> {
                   child: Row(
                     children: [
                       const HSpace(16.0),
+                      IconButton(
+                        onPressed: () => widget.onDelete(widget.title),
+                        icon: const Icon(
+                          Icons.delete,
+                          color: Colors.red,
+                          size: 36.0,
+                        ),
+                      ),
+                      const HSpace(16.0),
                       if (cardTime != null) ...[
                         Text(
                           cardTime.format(context),
@@ -113,7 +124,7 @@ class _LocationCardState extends State<LocationCard> {
                           });
                         },
                         icon: Icon(
-                          isCardExpanded
+                          !isCardExpanded
                               ? Icons.arrow_drop_down
                               : Icons.arrow_drop_up,
                           color: Colors.white,
@@ -131,7 +142,7 @@ class _LocationCardState extends State<LocationCard> {
               children: [
                 Expanded(
                   child: Container(
-                    height: 260,
+                    height: 270,
                     // padding: const EdgeInsets.all(16.0),
                     decoration: const BoxDecoration(
                       color: Color.fromARGB(214, 253, 197, 11),
@@ -140,6 +151,7 @@ class _LocationCardState extends State<LocationCard> {
                       ),
                     ),
                     child: GridView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
                       itemCount: cardCategories.length,
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
