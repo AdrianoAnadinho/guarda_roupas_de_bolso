@@ -23,7 +23,9 @@ class PocketIcons {
 
   static const IconData shirt = IconData(0xe800, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData underwear = IconData(0xe801, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData bra = IconData(0xe802, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData shorts = IconData(0xe803, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData shoe = IconData(0xe804, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData socks = IconData(0xe805, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData panties = IconData(0xe806, fontFamily: _kFontFam, fontPackage: _kFontPkg);
 }

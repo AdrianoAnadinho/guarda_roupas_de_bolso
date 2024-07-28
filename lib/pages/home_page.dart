@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:guarda_roupas_de_bolso/assets/icons/pocket_icons_icons.dart';
 import 'package:guarda_roupas_de_bolso/constants.dart';
+import 'package:guarda_roupas_de_bolso/models/enums/enums.dart';
 import 'package:guarda_roupas_de_bolso/models/models.dart';
+import 'package:guarda_roupas_de_bolso/stores/cubits/home_page_cubit.dart';
+import 'package:guarda_roupas_de_bolso/stores/states/home_page_state.dart';
 import 'package:guarda_roupas_de_bolso/widgets/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
   final String title;
+
+  const MyHomePage({
+    super.key,
+    required this.title,
+  });
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -14,24 +23,25 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final titleController = TextEditingController();
   final timeController = TextEditingController();
+  final cubit = HomePageCubit();
   List<Location> locationsList = [
-    const Location(
-      title: 'Casa',
-      time: TimeOfDay(hour: 3, minute: 32),
-    ),
     const Location(
       title: 'Trabalho',
       time: TimeOfDay(hour: 5, minute: 11),
-    ),
-    const Location(
-      title: 'Faculdade',
-      time: TimeOfDay(hour: 4, minute: 56),
-    ),
-    const Location(
-      title: 'Amiga',
-      time: TimeOfDay(hour: 10, minute: 43),
+      braStatus: false,
+      pantiesStatus: true,
+      shirtStatus: true,
+      shoeStatus: false,
+      shortsStatus: true,
+      socksStatus: false,
     ),
   ];
+
+  @override
+  void activate() {
+    super.activate();
+    cubit.init();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,18 +94,71 @@ class _MyHomePageState extends State<MyHomePage> {
             DateRow(
               date: DateTime.now(),
             ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: locationsList.length,
-                itemBuilder: (context, index) => Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: LocationCard(
-                    title: locationsList[index].title,
-                    time: locationsList[index].time,
-                  ),
-                ),
-              ),
-            ),
+            BlocBuilder<HomePageCubit, HomePageState>(
+              bloc: cubit,
+              builder: (context, state) {
+                if (state is HomePageLoadedState) {
+                  return Expanded(
+                    child: ListView.builder(
+                      itemCount: locationsList.length,
+                      itemBuilder: (context, index) {
+                        final location = locationsList[index];
+
+                        return Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: LocationCard(
+                            onTap: (category) => print(category),
+                            isExpanded: _compareTime(
+                              TimeOfDay.fromDateTime(
+                                DateTime.now(),
+                              ),
+                              locationsList[index].time,
+                            ),
+                            title: location.title,
+                            time: location.time,
+                            categories: [
+                              TaskCategory(
+                                icon: PocketIcons.shirt,
+                                category: Category.shirt,
+                                isDone: location.shirtStatus,
+                              ),
+                              TaskCategory(
+                                icon: PocketIcons.shorts,
+                                category: Category.shorts,
+                                isDone: location.shortsStatus,
+                              ),
+                              TaskCategory(
+                                icon: PocketIcons.shoe,
+                                category: Category.shoe,
+                                isDone: location.shoeStatus,
+                              ),
+                              TaskCategory(
+                                icon: PocketIcons.socks,
+                                category: Category.socks,
+                                isDone: location.socksStatus,
+                              ),
+                              TaskCategory(
+                                icon: PocketIcons.bra,
+                                category: Category.bra,
+                                isDone: location.braStatus,
+                              ),
+                              TaskCategory(
+                                icon: PocketIcons.panties,
+                                category: Category.panties,
+                                isDone: location.pantiesStatus,
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                }
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              },
+            )
           ],
         ),
       ),
@@ -277,6 +340,21 @@ class _MyHomePageState extends State<MyHomePage> {
       return time;
     }
     return null;
+  }
+
+  bool _compareTime(TimeOfDay now, TimeOfDay? cardTime) {
+    if (cardTime == null) {
+      return false;
+    }
+
+    print(DateTime.now());
+
+    if (cardTime.hour < now.hour ||
+        (cardTime.hour == now.hour && cardTime.minute < now.minute)) {
+      return false;
+    }
+
+    return true;
   }
 }
 
